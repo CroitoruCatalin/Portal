@@ -1,0 +1,6 @@
+@Portal_HostAddress = http://localhost:8080
+
+GET {{Portal_HostAddress}}/weatherforecast/
+Accept: plain/text
+
+###

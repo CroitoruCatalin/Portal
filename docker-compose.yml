@@ -1,0 +1,25 @@
+services:
+  portal:
+    container_name: portal-app
+    image: ${DOCKER_REGISTRY-}portal
+    build:
+      context: .
+      dockerfile: Portal/Dockerfile
+    ports:
+    - "8080:8080"
+    - "8081:8081"
+    environment:
+    - POSTGRES_HOST=${DB_HOST}
+    - POSTGRES_DB=${DB}
+    - POSTGRES_USER=${DB_USER}
+    - POSTGRES_PASSWORD=${DB_PASSWORD}
+    - ASPNETCORE_ENVIRONMENT=Development
+  portal-db:
+    container_name: portal-database
+    image: postgres
+    environment:
+        POSTGRES_USER: ${DB_USER}
+        POSTGRES_PASSWORD: ${DB_PASSWORD}
+        POSTGRES_DB: ${DB_NAME}
+    ports:
+    - "5432:5432"
