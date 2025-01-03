@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Portal.Models
 {
-    public class PortalContext : DbContext
+    public class PortalContext : IdentityDbContext<User>
     {
         public PortalContext(DbContextOptions<PortalContext> options) 
             : base(options)
@@ -12,6 +13,8 @@ namespace Portal.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.HasDefaultSchema("portal");
         }
     }
 }

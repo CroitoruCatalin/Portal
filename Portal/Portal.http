@@ -2,5 +2,4 @@
 
 GET {{Portal_HostAddress}}/weatherforecast/
 Accept: plain/text
-
 ###
