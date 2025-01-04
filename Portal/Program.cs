@@ -3,7 +3,21 @@ using Microsoft.AspNetCore.Identity;
 using Portal.Models;
 using Scalar.AspNetCore;
 
+var AllowSpecificOrigins = "_myAllowVueApp";
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:33052")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+});
 
 //load environment variables
 var connectionString = builder.Configuration
@@ -70,6 +84,7 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 app.MapStaticAssets();
+app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
