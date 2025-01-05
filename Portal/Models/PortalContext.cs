@@ -15,6 +15,12 @@ namespace Portal.Models
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.HasDefaultSchema("portal");
+
+            modelBuilder.Entity<Post>()
+                .HasOne(p => p.Author)
+                .WithMany()
+                .HasForeignKey(p => p.AuthorID)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
