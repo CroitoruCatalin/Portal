@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Portal.Models;
 using Scalar.AspNetCore;
+using Portal.Repositories;
+using Portal.Services;
 
 var AllowSpecificOrigins = "_myAllowVueApp";
 
@@ -19,9 +21,10 @@ builder.Services.AddCors(options =>
         });
 });
 
-//load environment variables
+//PortalUpdateConnectionString vs PortalConnectionString
 var connectionString = builder.Configuration
     .GetConnectionString("PortalConnectionString");
+connectionString = builder.Configuration["Portal:ConnectionString"];
 
 builder.Services.AddDbContext<PortalContext>(options =>
     options.UseNpgsql(connectionString));
@@ -62,6 +65,10 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Api/User/AccessDenied";
     options.SlidingExpiration = true;
 });
+
+builder.Services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<IPostService, PostService>();
 
 
 builder.Services.AddControllers();
