@@ -52,44 +52,16 @@ namespace Portal.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePost(int id, [FromBody] Post post)
+        public async Task<IActionResult> UpdatePost(int id, [FromBody] PostDTO dto)
         {
-            if (post == null || post.PostID != id)
-            {
-                return BadRequest();
-            }
-            string currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(currentUserId))
-            {
-                return Unauthorized("User is not authenticated");
-            }
-            var existingPost = await _postService.GetPostByIdAsync(id);
-            if (existingPost == null)
-            {
-                return NotFound();
-            }
-
-            await _postService.UpdatePostAsync(post, currentUserId);
-            return NoContent();
+            var updatedPost = await _postService.UpdatePostAsync(id, dto, User);
+            return Ok(updatedPost);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePost(int id)
         {
-            string currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(currentUserId))
-            {
-                return Unauthorized("User is not authenticated");
-            }
-
-            var existingPost = await _postService.GetPostByIdAsync(id);
-            if (existingPost == null)
-            {
-                return NotFound();
-            }
-
-
-            await _postService.DeletePostAsync(id, currentUserId);
+            await _postService.DeletePostAsync(id, User);
             return NoContent();
         }
     }

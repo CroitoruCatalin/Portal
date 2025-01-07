@@ -9,7 +9,7 @@ namespace Portal.Services
         Task<IEnumerable<Post>> GetAllPostsAsync();
         Task<Post> GetPostByIdAsync(int postId);
         Task<Post> CreatePostAsync(PostDTO dto, ClaimsPrincipal user);
-        Task UpdatePostAsync(Post post, string currentUserID);
-        Task DeletePostAsync(int postId, string currentUserID);
+        Task<Post> UpdatePostAsync(int postId, PostDTO dto, ClaimsPrincipal user);
+        Task DeletePostAsync(int postId, ClaimsPrincipal user);
     }
 }

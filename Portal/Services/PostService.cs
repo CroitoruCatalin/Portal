@@ -55,14 +55,43 @@ namespace Portal.Services
             return newPost;
         }
 
-        public async Task UpdatePostAsync(Post post, string currentUserID)
+        public async Task<Post> UpdatePostAsync(int id, PostDTO post, ClaimsPrincipal user)
         {
-            await _unitOfWork.Posts.UpdatePostAsync(post);
+            if (String.IsNullOrEmpty(post.Message))
+            {
+                throw new ArgumentNullException(nameof(post));
+            }
+
+            var currentUser = await _userManager.GetUserAsync(user);
+            var currentUserID = await _userManager.GetUserIdAsync(currentUser);
+
+            var postToBeUpdated = await _unitOfWork.Posts.GetPostByIdAsync(id);
+            Console.WriteLine("ABRACADABRA POST ID: " + postToBeUpdated.PostID);
+            if (postToBeUpdated.AuthorID != currentUserID)
+            {
+                throw new UnauthorizedAccessException();
+            }
+
+            postToBeUpdated.Message = post.Message;
+
+            await _unitOfWork.Posts.UpdatePostAsync(postToBeUpdated);
             await _unitOfWork.SaveAsync();
+            return postToBeUpdated;
         }
 
-        public async Task DeletePostAsync(int postId, string currentUserID)
+        public async Task DeletePostAsync(int postId, ClaimsPrincipal user)
         {
+            var currentUser = await _userManager.GetUserAsync(user);
+            var postToBeDeleted = await _unitOfWork.Posts.GetPostByIdAsync(postId);
+            if (currentUser == null || postToBeDeleted.AuthorID != currentUser.Id)
+            {
+                throw new UnauthorizedAccessException();
+            }
+            if (postToBeDeleted == null)
+            {
+                throw new InvalidOperationException();
+            }
+
             await _unitOfWork.Posts.DeletePostAsync(postId);
             await _unitOfWork.SaveAsync();
         }
