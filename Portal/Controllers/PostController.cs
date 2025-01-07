@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Portal.Models;
+using Portal.Models.DTO;
 using Portal.Services;
+using System.Security.Claims;
 
 namespace Portal.Controllers
 {
@@ -9,10 +12,17 @@ namespace Portal.Controllers
     public class PostController : ControllerBase
     {
         private readonly IPostService _postService;
+        private readonly ILogger<PostController> _logger;
+        private readonly UserManager<User> _userManager;
 
-        public PostController(IPostService postService)
+
+        public PostController(IPostService postService,
+            ILogger<PostController> logger,
+            UserManager<User> userManager)
         {
             _postService = postService;
+            _logger = logger;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -34,14 +44,11 @@ namespace Portal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePost([FromBody] Post post)
+        public async Task<IActionResult> CreatePost([FromBody] PostDTO dto)
         {
-            if (post == null)
-            {
-                return BadRequest();
-            }
-            await _postService.CreatePostAsync(post);
-            return CreatedAtAction(nameof(GetPost), new { id = post.PostID }, post);
+            Post createdPost = await _postService.CreatePostAsync(dto, User);
+
+            return CreatedAtAction(nameof(GetPost), new { id = createdPost.PostID }, createdPost);
         }
 
         [HttpPut("{id}")]
@@ -51,27 +58,38 @@ namespace Portal.Controllers
             {
                 return BadRequest();
             }
-
+            string currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Unauthorized("User is not authenticated");
+            }
             var existingPost = await _postService.GetPostByIdAsync(id);
             if (existingPost == null)
             {
                 return NotFound();
             }
 
-            await _postService.UpdatePostAsync(post);
+            await _postService.UpdatePostAsync(post, currentUserId);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePost(int id)
         {
+            string currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Unauthorized("User is not authenticated");
+            }
+
             var existingPost = await _postService.GetPostByIdAsync(id);
             if (existingPost == null)
             {
                 return NotFound();
             }
 
-            await _postService.DeletePostAsync(id);
+
+            await _postService.DeletePostAsync(id, currentUserId);
             return NoContent();
         }
     }

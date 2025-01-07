@@ -9,6 +9,7 @@ namespace Portal.Repositories
 
         public PostRepository(PortalContext context)
         {
+            if(context == null) throw new ArgumentNullException("context");
             _context = context;
         }
 
@@ -25,8 +26,7 @@ namespace Portal.Repositories
 
         public async Task CreatePostAsync(Post post)
         {
-            _context.Posts.Add(post);
-            await _context.SaveChangesAsync();
+            await _context.Posts.AddAsync(post);
         }
 
         public async Task UpdatePostAsync(Post post)
