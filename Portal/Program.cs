@@ -4,6 +4,7 @@ using Portal.Models;
 using Scalar.AspNetCore;
 using Portal.Repositories;
 using Portal.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 var AllowSpecificOrigins = "_myAllowVueApp";
 
@@ -25,6 +26,7 @@ builder.Services.AddCors(options =>
 var connectionString = builder.Configuration
     .GetConnectionString("PortalConnectionString");
 connectionString = builder.Configuration["Portal:ConnectionString"];
+var ApiKey = builder.Configuration["OpenWeatherMap:ApiKey"];
 
 builder.Services.AddDbContext<PortalContext>(options =>
     options.UseNpgsql(connectionString));
@@ -69,7 +71,16 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
+builder.Services.AddHttpClient();
+
+builder.Services.AddScoped<WeatherService>(sp =>
+{
+    var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient();
+    var apiKey = sp.GetRequiredService<IConfiguration>()["OpenWeatherMap:ApiKey"];
+    return new WeatherService(httpClient, apiKey);
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
