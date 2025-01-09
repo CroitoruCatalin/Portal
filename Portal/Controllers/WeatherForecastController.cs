@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Portal.Services;
 
 namespace Portal.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
@@ -13,10 +14,14 @@ namespace Portal.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly WeatherService _weatherService;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(
+            ILogger<WeatherForecastController> logger,
+            WeatherService weatherService)
         {
             _logger = logger;
+            _weatherService = weatherService;
         }
         [Authorize]
         [HttpGet(Name = "GetWeatherForecast")]
@@ -30,5 +35,24 @@ namespace Portal.Controllers
             })
             .ToArray();
         }
+
+        [Authorize]
+        [HttpGet("Current")]
+        public async Task<IActionResult> GetCurrentWeather(
+            [FromQuery] double lat,
+            [FromQuery] double lon)
+        {
+            try
+            {
+                var weather = await _weatherService.GetCurrentWeatherAsync(lat, lon);
+                return Ok(weather);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching the weather data.");
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
     }
 }
