@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Portal.Models;
 using Portal.Models.DTO;
 using Portal.Services;
-using System.Security.Claims;
 
 namespace Portal.Controllers
 {

@@ -4,7 +4,6 @@ using Portal.Models;
 using Scalar.AspNetCore;
 using Portal.Repositories;
 using Portal.Services;
-using Microsoft.Extensions.DependencyInjection;
 
 var AllowSpecificOrigins = "_myAllowVueApp";
 
