@@ -66,7 +66,6 @@ namespace Portal.Services
             var currentUserID = await _userManager.GetUserIdAsync(currentUser);
 
             var postToBeUpdated = await _unitOfWork.Posts.GetPostByIdAsync(id);
-            Console.WriteLine("ABRACADABRA POST ID: " + postToBeUpdated.PostID);
             if (postToBeUpdated.AuthorID != currentUserID)
             {
                 throw new UnauthorizedAccessException();
