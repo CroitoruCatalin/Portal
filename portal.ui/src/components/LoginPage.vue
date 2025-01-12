@@ -11,11 +11,11 @@
           <q-form @submit.prevent="handleLogin" class="q-gutter-md">
 
             <q-input filled
-                     v-model="email"
-                     type="email"
-                     label="Email"
+                     v-model="username"
+                     type="username"
+                     label="Username"
                      required
-                     :rules="[val => val && val.length >= 0 || 'Email is required']"
+                     :rules="[val => val && val.length >= 0 || 'Username is required']"
                      :lazy-rules
                      autofocus/>
                      
@@ -53,7 +53,7 @@
   export default {
     data() {
       return {
-        email: '',
+        username: '',
         password: '',
         rememberMe: false,
       };
@@ -62,7 +62,7 @@
       async handleLogin() {
         try {
           const response = await api.post('/User/login', {
-            email: this.email,
+            username: this.username,
             password: this.password,
             rememberMe: this.rememberMe,
           });
