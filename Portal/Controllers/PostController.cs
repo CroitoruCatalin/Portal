@@ -28,6 +28,10 @@ namespace Portal.Controllers
         public async Task<IActionResult> GetPosts()
         {
             var posts = await _postService.GetAllPostsAsync();
+            if (posts == null) 
+            { 
+                return NotFound();
+            }
             return Ok(posts);
         }
 
