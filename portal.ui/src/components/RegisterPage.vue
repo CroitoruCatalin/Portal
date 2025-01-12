@@ -1,62 +1,110 @@
 <template>
-  <div class="register">
-    <h2>Register</h2>
-    <form @submit.prevent="register">
-      <input v-model="email" type="email" placeholder="Email" required />
-      <input v-model="password" type="password" placeholder="Password" required />
-      <input v-model="confirmPassword" type="password" placeholder="Confirm Password" required />
-      <button type="submit">Register</button>
-    </form>
-    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-  </div>
+  <q-page class="window-height window-width row justify-center items-center bg-grey-2">
+    <div class="column q-pa-md" style="max-width: 400px;">
+
+      <div class="row justify-center">
+        <h5 class="text-h5 text-primary q-my-md">Create an Account</h5>
+      </div>
+
+      <q-card square bordered class="q-pa-lg shadow-2">
+        <q-card-section>
+          <q-form @submit.prevent="register" class="q-gutter-md">
+
+            <q-input filled
+                     v-model="username"
+                     type="text"
+                     label="Username"
+                     required
+                     :rules="[val => val && val.length >= 3 || 'Username must be at least 3 characters']"
+                     autofocus />
+
+            <q-input filled
+                     v-model="email"
+                     type="email"
+                     label="Email"
+                     required
+                     :rules="[val => val && /.+@.+\..+/.test(val) || 'Invalid email']" />
+
+            <q-input filled
+                     v-model="password"
+                     type="password"
+                     label="Password"
+                     required
+                     :rules="[val => val && val.length >= 6 || 'Password must be at least 6 characters']" />
+
+            <q-input filled
+                     v-model="confirmPassword"
+                     type="password"
+                     label="Confirm Password"
+                     required
+                     :rules="[val => val === password || 'Passwords must match']" />
+
+            <p v-if="errorMessage" class="text-negative text-body2">{{ errorMessage }}</p>
+          </q-form>
+        </q-card-section>
+
+        <q-card-actions>
+          <q-btn unelevated
+                 color="primary"
+                 size="lg"
+                 class="full-width"
+                 label="Register"
+                 @click="register" />
+        </q-card-actions>
+
+        <q-card-section class="text-center q-pa-none">
+          <p class="text-grey-6">
+            Already have an account?
+            <q-btn flat label="Login" to="/login" />
+          </p>
+        </q-card-section>
+      </q-card>
+    </div>
+  </q-page>
 </template>
 
-<script lang="ts">
-  import { defineComponent, ref } from 'vue';
+<script>
   import api from '@/api';
-  import { useRouter } from 'vue-router';
 
-  export default defineComponent({
-    name: 'RegisterPage',
-    setup() {
-      const router = useRouter();
-      const email = ref('');
-      const password = ref('');
-      const confirmPassword = ref('');
-      const errorMessage = ref('');
-
-      const register = async () => {
-        if (password.value !== confirmPassword.value) {
-          errorMessage.value = 'Passwords do not match';
+  export default {
+    data() {
+      return {
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        errorMessage: '',
+      };
+    },
+    methods: {
+      async register() {
+        if (this.password !== this.confirmPassword) {
+          this.errorMessage = 'Passwords do not match';
           return;
         }
 
         try {
           const response = await api.post('/user/register', {
-            email: email.value,
-            password: password.value,
-            confirmPassword: confirmPassword.value,
+            username: this.username,
+            email: this.email,
+            password: this.password,
+            confirmPassword: this.confirmPassword,
           });
-          console.log('Registration successful', response.data);
-          router.push('/login');
-        } catch (error: any) {
-          errorMessage.value = error.response?.data?.error || 'An error occurred';
-        }
-      };
 
-      return {
-        email,
-        password,
-        confirmPassword,
-        errorMessage,
-        register,
-      };
+          this.$router.push('/login');
+          console.log('Registration successful!', response.data);
+        } catch (error) {
+          this.errorMessage =
+            error.response?.data?.error || 'An error occurred during registration';
+          console.error('Registration error:', error);
+        }
+      },
     },
-  });
+  };
 </script>
 
-<style scoped>
-  .error {
-    color: red;
+<style>
+  .q-btn.full-width {
+    width: 100%;
   }
 </style>
