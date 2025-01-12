@@ -66,5 +66,17 @@ namespace Portal.Controllers
             return Ok(new { Email = email });
         }
 
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetUser(string id)
+        {
+            var userDTO = await _authService.GetUserDTOById(id);
+            if (userDTO == null)
+            {
+                return NotFound();
+            }
+            return Ok(userDTO);
+        }
+
     }
 }

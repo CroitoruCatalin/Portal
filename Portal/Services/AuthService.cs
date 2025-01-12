@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Logging;
 using NuGet.Protocol;
 using Portal.Models;
+using Portal.Models.DTO;
+using Portal.Repositories;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -12,15 +14,27 @@ namespace Portal.Services
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<AuthService> _logger;
+        private readonly IRepositoryWrapper _unitOfWork;
 
         public AuthService(
             UserManager<User> userManager, 
             SignInManager<User> signInManager, 
-            ILogger<AuthService> logger)
+            ILogger<AuthService> logger,
+            IRepositoryWrapper unitOfWork
+            )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _unitOfWork = unitOfWork;
+        }
+
+        public async Task<UserDTO> GetUserDTOById(string id)
+        {
+            var User = await _unitOfWork.Users.GetUserByIdAsync(id);
+            var userDTO = new UserDTO();
+            userDTO.SetFromUser(User);
+            return userDTO;
         }
 
         public string GetUserEmail(ClaimsPrincipal user)
