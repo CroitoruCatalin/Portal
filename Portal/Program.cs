@@ -99,14 +99,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapControllers();
-app.MapStaticAssets();
-app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-
+app.MapControllers();
+app.MapStaticAssets();
+app.UseCors();
 
 
 app.Run();

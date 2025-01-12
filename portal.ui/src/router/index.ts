@@ -1,14 +1,25 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory} from 'vue-router';
 import RegisterPage from '@/components/RegisterPage.vue';
 import LoginPage from '@/components/LoginPage.vue';
-import ProfilePage from '@/components/ProfilePage.vue';
+import MainPage from '@/components/MainPage.vue';
+import HomePage from '@/components/HomePage.vue';
+import PostsPage from '@/components/PostsPage.vue';
+
 import api from '@/api';
 
-const routes: Array<RouteRecordRaw> = [
-  { path: '/', redirect: '/login' },
-  { path: '/register', name: 'Register', component: RegisterPage },
-  { path: '/login', name: 'Login', component: LoginPage },
-  { path: '/profile', name: 'Profile', component: ProfilePage },
+const routes = [
+  { path: '/login', component: LoginPage },
+  { path: '/register', component: RegisterPage },
+  {
+    path: '/',
+    component: MainPage,
+    children: [
+      { path: '', component: HomePage },
+      { path: 'home', component: HomePage },
+      { path: 'posts', component: PostsPage },
+    ],
+  },
+  { path: '/:catchAll(.*)', redirect: '/login' },
 ];
 
 const router = createRouter({
@@ -16,19 +27,26 @@ const router = createRouter({
   routes,
 });
 
-
 router.beforeEach(async (to, from, next) => {
-  if (to.path === '/profile') {
+  const protectedRoutes = ['/', '/home', '/posts'];
+  const publicRoutes = ['/login', '/register'];
+
+  if (publicRoutes.includes(to.path)) {
+    return next();
+  }
+
+  if (protectedRoutes.some(route => to.path.startsWith(route))) {
     try {
       await api.get('/User/me');
       next();
-    } catch {
+    } catch (error) {
+      console.error('Authentication error:', error);
       next('/login');
     }
   } else {
     next();
   }
-})
+});
 
 
 

@@ -67,7 +67,7 @@
             rememberMe: this.rememberMe,
           });
 
-          this.$router.push('/profile');
+          this.$router.push('/');
           console.log('Login successful!');
           console.log('Response:', response.data);
         } catch (error) {

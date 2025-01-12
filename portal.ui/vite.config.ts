@@ -15,7 +15,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@import 'quasar/src/css/variables.sass';`,
+        additionalData: `@use 'quasar/src/css/variables.sass' as *;`,
       },
     },
   },
