@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using NuGet.Protocol;
 using Portal.Models;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ namespace Portal.Services
 
         public async Task<(bool Success, string Message)> LoginAsync(LoginModel model)
         {
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
+            var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
             if (result.Succeeded)
             {
                 _logger.LogInformation("User logged in.");
@@ -54,8 +55,9 @@ namespace Portal.Services
         {
             var user = new User
             {
-                UserName = model.Email,
+                EmailConfirmed = true,
                 Email = model.Email,
+                UserName = model.Username,
             };
             var result = await _userManager.CreateAsync(user, model.Password);
 
