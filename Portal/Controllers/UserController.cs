@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portal.Services;
+using Microsoft.AspNetCore.Identity;
 namespace Portal.Controllers
 {
     [ApiController]
@@ -9,11 +10,14 @@ namespace Portal.Controllers
     public class UserController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly UserManager<User> _userManager;
 
         public UserController(
-            IAuthService authService)
+            IAuthService authService, 
+            UserManager<User> userManager)
         {
             _authService = authService;
+            _userManager = userManager;
         }
 
         [HttpPost("register")]
@@ -60,10 +64,10 @@ namespace Portal.Controllers
 
         [HttpGet("me")]
         [Authorize]
-        public IActionResult Me()
+        public async Task<IActionResult> Me()
         {
-            var email = _authService.GetUserEmail(User);
-            return Ok(new { Email = email });
+            var currentUser = await _userManager.GetUserAsync(User);
+            return Ok(new { username = currentUser.UserName, id = currentUser.Id });
         }
 
         [HttpGet("{id}")]
