@@ -4,7 +4,6 @@
       <h2>Posts</h2>
       <p>Here are some posts!</p>
 
-      <!-- Create Post Section -->
       <div v-if="currentUser" class="create-post">
         <h3>Create a New Post</h3>
         <q-input v-model="newPostMessage"
@@ -20,14 +19,12 @@
         </div>
       </div>
 
-      <!-- Display Posts -->
       <div v-for="post in posts" :key="post.postID" class="post-card">
         <div class="post-header">
           <h3>{{ post.authorName }}</h3>
           <span class="post-date">{{ formatDate(post.creationDate) }}</span>
         </div>
 
-        <!-- Post Message Section (Editable if clicked) -->
         <div class="post-message">
           <div v-if="post.isEditing">
             <q-input v-model="post.updatedMessage"
@@ -46,7 +43,6 @@
           </div>
         </div>
 
-        <!-- Update and Delete Actions -->
         <div v-if="post.authorID === currentUser.id" class="post-actions">
           <q-btn @click="editPost(post)" label="Edit" color="primary" flat />
           <q-btn @click="deletePost(post.postID)" label="Delete" color="negative" flat />
@@ -78,12 +74,12 @@
           const response = await api.get('Post');
           const posts = response.data;
 
-          // Fetch author names for each post
+          
           for (let post of posts) {
             const userResponse = await api.get(`User/${post.authorID}`);
             post.authorName = userResponse.data.username;
-            post.updatedMessage = post.message;  // Save the original message for later use
-            post.isEditing = false;  // Initially, posts are not in editing mode
+            post.updatedMessage = post.message;  
+            post.isEditing = false;  
           }
 
           this.posts = posts;
@@ -117,21 +113,21 @@
           newPost.updatedMessage = newPost.message;
           newPost.isEditing = false;
 
-          this.posts.push(newPost);  // Add the new post to the list
-          this.newPostMessage = '';  // Clear the input field
+          this.posts.push(newPost); 
+          this.newPostMessage = ''; 
         } catch (error) {
           console.error('Error creating post:', error);
         }
       },
       editPost(post) {
-        post.isEditing = true;  // Set post to editing mode
+        post.isEditing = true; 
       },
       cancelEdit(post) {
-        post.isEditing = false;  // Cancel editing and revert to original message
+        post.isEditing = false; 
         post.updatedMessage = post.message;
       },
       async savePost(post) {
-        if (!post.updatedMessage || post.updatedMessage === post.message) return; // No change or empty message
+        if (!post.updatedMessage || post.updatedMessage === post.message) return; 
 
         try {
           const response = await api.put(`Post/${post.postID}`, {
@@ -141,14 +137,12 @@
           const updatedPost = response.data;
           const postIndex = this.posts.findIndex(p => p.postID === updatedPost.postID);
 
-          // Preserve the authorName after update
           const authorResponse = await api.get(`User/${updatedPost.authorID}`);
           updatedPost.authorName = authorResponse.data.username;
 
-          // Update the post in the list
           this.posts[postIndex] = updatedPost;
 
-          post.isEditing = false;  // Exit editing mode
+          post.isEditing = false;
         } catch (error) {
           console.error('Error updating post:', error);
         }
